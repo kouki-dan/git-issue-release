@@ -14,7 +14,7 @@ export async function generateNotes(
   owner: string,
   repo: string,
   head_commitish: string,
-  previous_tag_name: string,
+  previous_tag_name: string | null,
   octokit: Octokit
 ): Promise<string> {
   return "TODO: generate notes";

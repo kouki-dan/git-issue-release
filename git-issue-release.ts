@@ -5,6 +5,9 @@ import * as lib from "./lib";
 export async function gitIssueRelease() {
   const release_tag_prefix = core.getInput("release-tag-prefix");
   const release_labels = lib.parseReleaseLabel(core.getInput("release-label"));
+  if (typeof process.env.GITHUB_TOKEN !== "string") {
+    throw "GITHUB_TOKEN is required";
+  }
   const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
 
   const { owner, repo } = github.context.repo;
@@ -13,11 +16,11 @@ export async function gitIssueRelease() {
     release_tag_prefix,
     octokit
   );
-  const previous_tag_name = latest_release ? latest_release.tag_name : null;
+  const previous_tag_name = latest_release?.tag_name || null;
 
   const issue_title = "Release";
 
-  let head_commitish;
+  let head_commitish: string;
   if (github.context.payload["pull_request"]) {
     head_commitish = github.context.payload["pull_request"]["merge_commit_sha"];
   } else if (github.context.payload["head_commit"]) {
