@@ -1,0 +1,14 @@
+name: 'git-issue-release'
+description: 'Automatically generate PRs diff from previous release'
+inputs:
+  release-tag-prefix:
+    description: 'Prefix of release tag'
+    required: true
+    default: 'v'
+  release-label:
+    description: 'Label of release issue (comma separated if there are multiple)'
+    required: true
+    default: 'Release'
+runs:
+  using: 'node12'
+  main: 'index.js'
