@@ -18,7 +18,7 @@ export async function gitIssueRelease() {
   );
   const previous_tag_name = latest_release?.tag_name || null;
 
-  const issue_title = "Release";
+  const issue_title = "Release Issue";
 
   let head_commitish: string;
   if (github.context.payload["pull_request"]) {
