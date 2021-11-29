@@ -1,4 +1,6 @@
-import { Octokit } from "@octokit/core";
+import { GitHub } from "@actions/github/lib/utils";
+
+type Octokit = InstanceType<typeof GitHub>;
 
 export type Release = {
   tag_name: string;
