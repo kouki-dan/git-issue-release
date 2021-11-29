@@ -1,10 +1,13 @@
 import * as core from "@actions/core";
+import { gitIssueRelease } from "./git-issue-release";
 
 async function run() {
   try {
-    console.log("OK");
+    await gitIssueRelease();
   } catch (error) {
-    core.setFailed(error.message);
+    if (error instanceof Error) {
+      core.setFailed(error.message);
+    }
   }
 }
 
