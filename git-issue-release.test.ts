@@ -1,4 +1,5 @@
 import * as github from "@actions/github";
+import * as core from "@actions/core";
 import * as lib from "./lib";
 import { gitIssueRelease } from "./git-issue-release";
 
@@ -7,6 +8,14 @@ test("should create when release issue has not been cretaed", async () => {
   process.env.GITHUB_REPOSITORY = "owner/repo";
   const octokit: any = {};
   jest.spyOn(github, "getOctokit").mockReturnValueOnce(octokit);
+
+  jest.spyOn(core, "getInput").mockImplementation((name) => {
+    return {
+      "release-tag-prefix": "v",
+      "release-label": "Release",
+      "release-issue-title": "Release Issue",
+    }[name]!;
+  });
 
   const spyParseReleaseLabel = jest.spyOn(lib, "parseReleaseLabel");
   spyParseReleaseLabel.mockReturnValue(["Release"]);
