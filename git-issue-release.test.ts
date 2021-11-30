@@ -17,14 +17,12 @@ test("should create when release issue has not been cretaed", async () => {
     }[name]!;
   });
 
-  const spyParseReleaseLabel = jest.spyOn(lib, "parseReleaseLabel");
-  spyParseReleaseLabel.mockReturnValue(["Release"]);
-
-  const spyGenerateNotes = jest.spyOn(lib, "generateNotes");
-  spyGenerateNotes.mockReturnValue(Promise.resolve("notes"));
-
-  const spyFindOpenReleaseIssue = jest.spyOn(lib, "findOpenReleaseIssue");
-  spyFindOpenReleaseIssue.mockReturnValue(Promise.resolve(null));
+  jest.spyOn(lib, "parseReleaseLabel").mockReturnValue(["Release"]);
+  jest.spyOn(lib, "findLatestRelease").mockReturnValue(Promise.resolve(null));
+  jest.spyOn(lib, "generateNotes").mockReturnValue(Promise.resolve("notes"));
+  jest
+    .spyOn(lib, "findOpenReleaseIssue")
+    .mockReturnValue(Promise.resolve(null));
 
   const spyCreateReleaseIssue = jest.spyOn(lib, "createReleaseIssue");
   spyCreateReleaseIssue.mockReturnValue(Promise.resolve({ number: 1 }));
@@ -47,14 +45,10 @@ test("Should update when release issue has been created", async () => {
   const octokit: any = {};
   jest.spyOn(github, "getOctokit").mockReturnValueOnce(octokit);
 
-  const spyParseReleaseLabel = jest.spyOn(lib, "parseReleaseLabel");
-  spyParseReleaseLabel.mockReturnValue(["Release"]);
-
-  const spyGenerateNotes = jest.spyOn(lib, "generateNotes");
-  spyGenerateNotes.mockReturnValue(Promise.resolve("notes"));
-
-  const spyFindOpenReleaseIssue = jest.spyOn(lib, "findOpenReleaseIssue");
-  spyFindOpenReleaseIssue.mockReturnValue(
+  jest.spyOn(lib, "parseReleaseLabel").mockReturnValue(["Release"]);
+  jest.spyOn(lib, "findLatestRelease").mockReturnValue(Promise.resolve(null));
+  jest.spyOn(lib, "generateNotes").mockReturnValue(Promise.resolve("notes"));
+  jest.spyOn(lib, "findOpenReleaseIssue").mockReturnValue(
     Promise.resolve({
       number: 1,
     })

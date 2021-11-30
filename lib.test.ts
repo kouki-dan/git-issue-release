@@ -2,8 +2,88 @@ import * as lib from "./lib";
 
 let octokit: any = {};
 
-test("findLatestRelease", () => {
-  expect(lib.findLatestRelease("v1.0.0", octokit)).resolves.toBeNull();
+describe("findLatestRelease", () => {
+  test("no release", () => {
+    octokit.paginate = {
+      iterator: jest.fn(() => {
+        return (async function* () {
+          yield {
+            data: [],
+          };
+        })();
+      }),
+    };
+    expect(
+      lib.findLatestRelease("owner", "repo", "v", octokit)
+    ).resolves.toBeNull();
+  });
+
+  test("has release but not correct prefix", () => {
+    octokit.paginate = {
+      iterator: jest.fn(() => {
+        return (async function* () {
+          yield {
+            data: [
+              {
+                tag_name: "0.1.0",
+              },
+            ],
+          };
+        })();
+      }),
+    };
+    expect(
+      lib.findLatestRelease("owner", "repo", "v", octokit)
+    ).resolves.toBeNull();
+  });
+
+  test("has release", () => {
+    octokit.paginate = {
+      iterator: jest.fn(() => {
+        return (async function* () {
+          yield {
+            data: [
+              {
+                tag_name: "v0.1.0",
+              },
+              {
+                tag_name: "v0.0.1",
+              },
+            ],
+          };
+        })();
+      }),
+    };
+    expect(
+      lib.findLatestRelease("owner", "repo", "v", octokit)
+    ).resolves.toMatchObject({ tag_name: "v0.1.0" });
+  });
+
+  test("has release in next page", () => {
+    octokit.paginate = {
+      iterator: jest.fn(() => {
+        return (async function* () {
+          yield {
+            data: [
+              {
+                tag_name: "0.1.0",
+              },
+            ],
+          };
+          yield {
+            data: [
+              {
+                tag_name: "v0.1.0",
+              },
+            ],
+          };
+        })();
+      }),
+    };
+    expect(
+      lib.findLatestRelease("owner", "repo", "v", octokit)
+    ).resolves.toMatchObject({ tag_name: "v0.1.0" });
+  });
 });
 
 test("generateNotes", () => {

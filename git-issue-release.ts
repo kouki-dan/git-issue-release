@@ -14,6 +14,8 @@ export async function gitIssueRelease() {
   const { owner, repo } = github.context.repo;
 
   const latest_release = await lib.findLatestRelease(
+    owner,
+    repo,
     release_tag_prefix,
     octokit
   );

@@ -6,9 +6,25 @@ export type Release = {
   tag_name: string;
 };
 export async function findLatestRelease(
+  owner: string,
+  repo: string,
   tag_prefix: string,
   octokit: Octokit
 ): Promise<Release | null> {
+  for await (const response of octokit.paginate.iterator(
+    "GET /repos/{owner}/{repo}/releases",
+    {
+      owner: owner,
+      repo: repo,
+    }
+  )) {
+    for (const release of response.data) {
+      if (release.tag_name.startsWith(tag_prefix)) {
+        return release;
+      }
+    }
+  }
+
   return null;
 }
 
