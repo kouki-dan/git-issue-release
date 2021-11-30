@@ -5,6 +5,7 @@ import * as lib from "./lib";
 export async function gitIssueRelease() {
   const release_tag_prefix = core.getInput("release-tag-prefix");
   const release_labels = lib.parseReleaseLabel(core.getInput("release-label"));
+  const issue_title = core.getInput("release-issue-title");
   if (typeof process.env.GITHUB_TOKEN !== "string") {
     throw "GITHUB_TOKEN is required";
   }
@@ -17,8 +18,6 @@ export async function gitIssueRelease() {
     octokit
   );
   const previous_tag_name = latest_release?.tag_name;
-
-  const issue_title = "Release Issue";
 
   let head_commitish: string;
   if (github.context.payload["pull_request"]) {

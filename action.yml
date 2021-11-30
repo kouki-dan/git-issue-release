@@ -9,6 +9,10 @@ inputs:
     description: 'Label of release issue (comma separated if there are multiple)'
     required: true
     default: 'Release'
+  release-issue-title:
+    description: 'Issue title for release issue'
+    required: true
+    default: "What's changed in the next release"
 runs:
   using: 'node12'
   main: 'dist/index.js'
