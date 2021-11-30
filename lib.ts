@@ -31,7 +31,18 @@ export async function findOpenReleaseIssue(
   release_labels: string[],
   octokit: Octokit
 ): Promise<Issue | null> {
-  return null;
+  const issues = await octokit.request("GET /repos/{owner}/{repo}/issues", {
+    owner: owner,
+    repo: repo,
+    labels: release_labels.join(","),
+    state: "open",
+  });
+
+  if (issues.data.length > 0) {
+    return issues.data[0];
+  } else {
+    return null;
+  }
 }
 
 export async function updateReleaseIssue(
@@ -41,7 +52,16 @@ export async function updateReleaseIssue(
   title: string,
   body: string,
   octokit: Octokit
-): Promise<void> {}
+): Promise<void> {
+  // TODO: Get current issue body and merge it.
+  await octokit.request("PATCH /repos/{owner}/{repo}/issues/{issue_number}", {
+    owner: owner,
+    repo: repo,
+    issue_number: issue_number,
+    title: title,
+    body: body,
+  });
+}
 
 export async function createReleaseIssue(
   owner: string,
@@ -51,9 +71,29 @@ export async function createReleaseIssue(
   body: string,
   octokit: Octokit
 ): Promise<Issue> {
-  return {
-    number: 0,
-  };
+  const exsisting_labels_response = await octokit.request(
+    "GET /repos/{owner}/{repo}/labels",
+    {
+      owner: owner,
+      repo: repo,
+    }
+  );
+  const labels = exsisting_labels_response.data.filter((l) =>
+    release_labels.includes(l.name)
+  );
+
+  if (labels.length != release_labels.length) {
+    throw Error("Label has not been created. You should create a label.");
+  }
+
+  const created_issue = await octokit.rest.issues.create({
+    owner: owner,
+    repo: repo,
+    title: title,
+    body: body,
+    labels: labels,
+  });
+  return created_issue.data;
 }
 
 export async function closeReleasedIssueIfNeeded(
