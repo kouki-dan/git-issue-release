@@ -7,9 +7,16 @@ test("findLatestRelease", () => {
 });
 
 test("generateNotes", () => {
+  octokit.request = jest.fn(() => {
+    return Promise.resolve({
+      data: {
+        body: "generated notes",
+      },
+    });
+  });
   expect(
     lib.generateNotes("owner", "repo", "head_commitish", "v1.0.0", octokit)
-  ).resolves.toBe("TODO: generate notes");
+  ).resolves.toBe("generated notes");
 });
 
 describe("findOpenReleaseIssue", () => {

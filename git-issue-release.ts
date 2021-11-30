@@ -16,7 +16,7 @@ export async function gitIssueRelease() {
     release_tag_prefix,
     octokit
   );
-  const previous_tag_name = latest_release?.tag_name || null;
+  const previous_tag_name = latest_release?.tag_name;
 
   const issue_title = "Release Issue";
 
