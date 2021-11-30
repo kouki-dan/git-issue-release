@@ -89,13 +89,15 @@ describe("createReleaseIssue", () => {
     );
     octokit.rest = {
       issues: {
-        create: jest.fn((_) =>
-          Promise.resolve({
+        create: jest.fn((args) => {
+          expect(args["labels"].length).toBe(1);
+          expect(args["labels"][0]["name"]).toBe("Release");
+          return Promise.resolve({
             data: {
               number: 1,
             },
-          })
-        ),
+          });
+        }),
       },
     };
     expect(
