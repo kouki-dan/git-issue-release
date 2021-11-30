@@ -8478,7 +8478,14 @@ function findLatestRelease(tag_prefix, octokit) {
 }
 function generateNotes(owner, repo, head_commitish, previous_tag_name, octokit) {
     return __awaiter(this, void 0, void 0, function* () {
-        return "TODO: generate notes";
+        const release_notes = yield octokit.request("POST /repos/{owner}/{repo}/releases/generate-notes", {
+            owner: owner,
+            repo: repo,
+            tag_name: head_commitish,
+            target_commitish: head_commitish,
+            previous_tag_name: previous_tag_name,
+        });
+        return release_notes.data.body;
     });
 }
 function findOpenReleaseIssue(owner, repo, release_labels, octokit) {
@@ -8563,7 +8570,7 @@ function gitIssueRelease() {
         const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
         const { owner, repo } = github.context.repo;
         const latest_release = yield findLatestRelease(release_tag_prefix, octokit);
-        const previous_tag_name = (latest_release === null || latest_release === void 0 ? void 0 : latest_release.tag_name) || null;
+        const previous_tag_name = latest_release === null || latest_release === void 0 ? void 0 : latest_release.tag_name;
         const issue_title = "Release Issue";
         let head_commitish;
         if (github.context.payload.pull_request) {
