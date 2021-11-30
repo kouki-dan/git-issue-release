@@ -123,17 +123,39 @@ export async function createReleaseIssue(
   return created_issue.data;
 }
 
-export async function closeReleasedIssueIfNeeded(
+export async function closeReleasedIssue(
   owner: string,
   repo: string,
   release_labels: string[],
-  tag_prefix: string,
   released_tag_name: string,
   octokit: Octokit
-): Promise<Issue> {
-  return {
-    number: 0,
-  };
+): Promise<void> {
+  const latest_open_release_issue = await findOpenReleaseIssue(
+    owner,
+    repo,
+    release_labels,
+    octokit
+  );
+  if (latest_open_release_issue === null) {
+    console.warn("Cannot find a open release issue");
+    return;
+  }
+
+  const html_url = `https://github.com/{owner}/{repo}/releases/tag/{released_tag_name}`;
+
+  await octokit.rest.issues.createComment({
+    owner: owner,
+    repo: repo,
+    issue_number: latest_open_release_issue.number,
+    body: "Released: " + html_url,
+  });
+
+  await octokit.rest.issues.update({
+    owner: owner,
+    repo: repo,
+    issue_number: latest_open_release_issue.number,
+    state: "closed",
+  });
 }
 
 export function parseReleaseLabel(release_label: string): string[] {

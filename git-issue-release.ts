@@ -23,11 +23,15 @@ export async function gitIssueRelease() {
 
   let head_commitish: string;
   if (github.context.payload["pull_request"]) {
+    // Pull Request
     head_commitish = github.context.payload["pull_request"]["merge_commit_sha"];
   } else if (github.context.payload["head_commit"]) {
+    // Push
     head_commitish = github.context.payload["head_commit"]["id"];
+  } else if (github.context.payload["release"]) {
+    // Release
+    head_commitish = github.context.payload["release"]["tag_name"];
   } else {
-    // TODO: add case of publishing a tag
     head_commitish = "";
     console.warn("faild to find head commit");
   }
@@ -67,13 +71,15 @@ export async function gitIssueRelease() {
     );
   }
 
-  if (github.context.payload["action"] == "released") {
+  if (
+    github.context.payload["action"] === "published" &&
+    !github.context.payload["release"]["prerelease"]
+  ) {
     const tag_name = github.context.payload["release"]["tag_name"];
-    await lib.closeReleasedIssueIfNeeded(
+    await lib.closeReleasedIssue(
       owner,
       repo,
       release_labels,
-      release_tag_prefix,
       tag_name,
       octokit
     );

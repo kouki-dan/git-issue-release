@@ -223,11 +223,16 @@ describe("createReleaseIssue", () => {
 });
 
 test("closeReleasedIssueIfNeeded", () => {
-  return lib.closeReleasedIssueIfNeeded(
+  octokit.rest = {
+    issues: {
+      createComment: jest.fn(),
+      update: jest.fn(),
+    },
+  };
+  return lib.closeReleasedIssue(
     "owner",
     "repo",
     ["Release"],
-    "v",
     "v1.0.0",
     octokit
   );
