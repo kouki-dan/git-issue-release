@@ -16,10 +16,21 @@ export async function generateNotes(
   owner: string,
   repo: string,
   head_commitish: string,
-  previous_tag_name: string | null,
+  previous_tag_name: string | undefined,
   octokit: Octokit
 ): Promise<string> {
-  return "TODO: generate notes";
+  const release_notes = await octokit.request(
+    "POST /repos/{owner}/{repo}/releases/generate-notes",
+    {
+      owner: owner,
+      repo: repo,
+      tag_name: head_commitish,
+      target_commitish: head_commitish,
+      previous_tag_name: previous_tag_name,
+    }
+  );
+
+  return release_notes.data.body;
 }
 
 export type Issue = {
