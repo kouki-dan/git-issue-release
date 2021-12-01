@@ -141,7 +141,7 @@ export async function closeReleasedIssueIfNeeded(
     octokit
   );
   if (latest_open_release_issue === null) {
-    console.warn("Cannot find a open release issue");
+    console.warn("Could not find a open release issue");
     return false;
   }
 
