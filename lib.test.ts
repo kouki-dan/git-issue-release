@@ -222,34 +222,72 @@ describe("createReleaseIssue", () => {
   });
 });
 
-test("closeReleasedIssueIfNeeded", () => {
-  octokit.rest = {
-    issues: {
-      createComment: jest.fn(),
-      update: jest.fn(),
-    },
-  };
-  expect(
-    lib.closeReleasedIssueIfNeeded(
-      "owner",
-      "repo",
-      ["Release"],
-      "v",
-      "v1.0.0",
-      octokit
-    )
-  ).resolves.toBe(true);
+describe("closeReleasedIssueIfNeeded", () => {
+  test("match tag prefix", () => {
+    octokit.rest = {
+      issues: {
+        createComment: jest.fn(),
+        update: jest.fn((args) => {
+          expect(args["title"]).toBe("Release: v1.0.0 is released!");
+        }),
+      },
+    };
+    expect(
+      lib.closeReleasedIssueIfNeeded(
+        "owner",
+        "repo",
+        ["Release"],
+        "v",
+        "v1.0.0",
+        "Release: :tag_name: is released!",
+        octokit
+      )
+    ).resolves.toBe(true);
+  });
 
-  expect(
-    lib.closeReleasedIssueIfNeeded(
-      "owner",
-      "repo",
-      ["Release"],
-      "v",
-      "1.0.0",
-      octokit
-    )
-  ).resolves.toBe(false);
+  test("no match tag prefix", () => {
+    const mock = jest.fn();
+    octokit.rest = {
+      issues: {
+        createComment: mock,
+        update: mock,
+      },
+    };
+    expect(
+      lib.closeReleasedIssueIfNeeded(
+        "owner",
+        "repo",
+        ["Release"],
+        "v",
+        "1.0.0",
+        "",
+        octokit
+      )
+    ).resolves.toBe(false);
+    expect(mock).not.toBeCalled();
+  });
+
+  test("release title is empty", () => {
+    octokit.rest = {
+      issues: {
+        createComment: jest.fn(),
+        update: jest.fn((args) => {
+          expect(args["title"]).toBe(undefined);
+        }),
+      },
+    };
+    expect(
+      lib.closeReleasedIssueIfNeeded(
+        "owner",
+        "repo",
+        ["Release"],
+        "v",
+        "v1.0.0",
+        "",
+        octokit
+      )
+    ).resolves.toBe(true);
+  });
 });
 
 test("parseReleaseLabel", () => {

@@ -129,6 +129,7 @@ export async function closeReleasedIssueIfNeeded(
   release_labels: string[],
   tag_prefix: string,
   released_tag_name: string,
+  issue_title_released: string,
   octokit: Octokit
 ): Promise<boolean> {
   if (!released_tag_name.startsWith(tag_prefix)) {
@@ -154,13 +155,22 @@ export async function closeReleasedIssueIfNeeded(
     body: "Released: " + html_url,
   });
 
+  const title = issue_title_released
+    ? composePublishedIssueTitle(issue_title_released, released_tag_name)
+    : undefined;
+
   await octokit.rest.issues.update({
     owner: owner,
     repo: repo,
+    title: title,
     issue_number: latest_open_release_issue.number,
     state: "closed",
   });
   return true;
+}
+
+function composePublishedIssueTitle(title: string, tag_name: string): string {
+  return title.replace(/:tag_name:/g, tag_name);
 }
 
 export function parseReleaseLabel(release_label: string): string[] {

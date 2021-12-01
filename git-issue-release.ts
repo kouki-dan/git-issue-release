@@ -82,6 +82,7 @@ export async function gitIssueRelease() {
       release_labels,
       release_tag_prefix,
       tag_name,
+      core.getInput("release-issue-title-published"),
       octokit
     );
     return;
