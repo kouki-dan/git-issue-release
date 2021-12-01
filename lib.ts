@@ -174,5 +174,5 @@ function composePublishedIssueTitle(title: string, tag_name: string): string {
 }
 
 export function parseReleaseLabel(release_label: string): string[] {
-  return [release_label];
+  return release_label.split(",").map((l) => l.trim());
 }

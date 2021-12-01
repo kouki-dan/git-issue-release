@@ -292,4 +292,9 @@ describe("closeReleasedIssueIfNeeded", () => {
 
 test("parseReleaseLabel", () => {
   expect(lib.parseReleaseLabel("Release")).toEqual(["Release"]);
+  expect(lib.parseReleaseLabel("Release1,Release2")).toEqual([
+    "Release1",
+    "Release2",
+  ]);
+  expect(lib.parseReleaseLabel("hoge, fuga")).toEqual(["hoge", "fuga"]);
 });
