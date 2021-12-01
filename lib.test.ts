@@ -226,7 +226,11 @@ describe("closeReleasedIssueIfNeeded", () => {
   test("match tag prefix", () => {
     octokit.rest = {
       issues: {
-        createComment: jest.fn(),
+        createComment: jest.fn((args) => {
+          expect(args["body"]).toBe(
+            "Released: https://github.com/owner/repo/releases/tag/v1.0.0"
+          );
+        }),
         update: jest.fn((args) => {
           expect(args["title"]).toBe("Release: v1.0.0 is released!");
         }),

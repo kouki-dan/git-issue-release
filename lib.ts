@@ -146,7 +146,7 @@ export async function closeReleasedIssueIfNeeded(
     return false;
   }
 
-  const html_url = `https://github.com/{owner}/{repo}/releases/tag/{released_tag_name}`;
+  const html_url = `https://github.com/${owner}/${repo}/releases/tag/${released_tag_name}`;
 
   await octokit.rest.issues.createComment({
     owner: owner,
