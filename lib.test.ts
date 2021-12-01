@@ -223,7 +223,7 @@ describe("createReleaseIssue", () => {
 });
 
 describe("closeReleasedIssueIfNeeded", () => {
-  test("", () => {
+  test("match tag prefix", () => {
     octokit.rest = {
       issues: {
         createComment: jest.fn(),
