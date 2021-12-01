@@ -84,6 +84,32 @@ describe("findLatestRelease", () => {
       lib.findLatestRelease("owner", "repo", "v", octokit)
     ).resolves.toMatchObject({ tag_name: "v0.1.0" });
   });
+
+  test("skip", () => {
+    octokit.paginate = {
+      iterator: jest.fn(() => {
+        return (async function* () {
+          yield {
+            data: [
+              {
+                tag_name: "v0.2.0",
+              },
+            ],
+          };
+          yield {
+            data: [
+              {
+                tag_name: "v0.1.0",
+              },
+            ],
+          };
+        })();
+      }),
+    };
+    expect(
+      lib.findLatestRelease("owner", "repo", "v", octokit, { skip: 1 })
+    ).resolves.toMatchObject({ tag_name: "v0.1.0" });
+  });
 });
 
 test("generateNotes", () => {
