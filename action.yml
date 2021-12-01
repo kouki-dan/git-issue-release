@@ -2,7 +2,7 @@ name: 'git-issue-release'
 description: 'Automatically generate PRs diff from previous release'
 inputs:
   release-tag-prefix:
-    description: 'Prefix of release tag'
+    description: "Prefix of release tag. It is used to link GitHub Releases and release Issues (not needed if you don't use automatic closing when release is published)"
     required: true
     default: 'v'
   release-label:

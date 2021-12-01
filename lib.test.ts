@@ -223,14 +223,33 @@ describe("createReleaseIssue", () => {
 });
 
 test("closeReleasedIssueIfNeeded", () => {
-  return lib.closeReleasedIssueIfNeeded(
-    "owner",
-    "repo",
-    ["Release"],
-    "v",
-    "v1.0.0",
-    octokit
-  );
+  octokit.rest = {
+    issues: {
+      createComment: jest.fn(),
+      update: jest.fn(),
+    },
+  };
+  expect(
+    lib.closeReleasedIssueIfNeeded(
+      "owner",
+      "repo",
+      ["Release"],
+      "v",
+      "v1.0.0",
+      octokit
+    )
+  ).resolves.toBe(true);
+
+  expect(
+    lib.closeReleasedIssueIfNeeded(
+      "owner",
+      "repo",
+      ["Release"],
+      "v",
+      "1.0.0",
+      octokit
+    )
+  ).resolves.toBe(false);
 });
 
 test("parseReleaseLabel", () => {

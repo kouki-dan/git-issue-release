@@ -3,6 +3,8 @@ name: git-issue-release
 on:
   pull_request:
     types: [closed]
+  release:
+    types: [published]
 
 jobs:
   action:
