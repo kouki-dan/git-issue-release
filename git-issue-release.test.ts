@@ -23,7 +23,9 @@ test("should create when release issue has not been cretaed", async () => {
   jest
     .spyOn(lib, "findOpenReleaseIssue")
     .mockReturnValue(Promise.resolve(null));
-  jest.spyOn(lib, "closeReleasedIssue").mockReturnValue(Promise.resolve());
+  jest
+    .spyOn(lib, "closeReleasedIssueIfNeeded")
+    .mockReturnValue(Promise.resolve(true));
 
   const spyCreateReleaseIssue = jest.spyOn(lib, "createReleaseIssue");
   spyCreateReleaseIssue.mockReturnValue(Promise.resolve({ number: 1 }));
@@ -54,7 +56,9 @@ test("Should update when release issue has been created", async () => {
       number: 1,
     })
   );
-  jest.spyOn(lib, "closeReleasedIssue").mockReturnValue(Promise.resolve());
+  jest
+    .spyOn(lib, "closeReleasedIssueIfNeeded")
+    .mockReturnValue(Promise.resolve(true));
 
   const spyUpdateReleaseIssue = jest.spyOn(lib, "updateReleaseIssue");
   spyUpdateReleaseIssue.mockReturnValue(Promise.resolve());

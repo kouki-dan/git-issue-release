@@ -76,10 +76,11 @@ export async function gitIssueRelease() {
     !github.context.payload["release"]["prerelease"]
   ) {
     const tag_name = github.context.payload["release"]["tag_name"];
-    await lib.closeReleasedIssue(
+    await lib.closeReleasedIssueIfNeeded(
       owner,
       repo,
       release_labels,
+      release_tag_prefix,
       tag_name,
       octokit
     );
