@@ -156,7 +156,7 @@ export async function closeReleasedIssueIfNeeded(
   });
 
   const title = issue_title_released
-    ? composeIssueTitle(issue_title_released, released_tag_name)
+    ? composePublishedIssueTitle(issue_title_released, released_tag_name)
     : undefined;
 
   await octokit.rest.issues.update({
@@ -169,7 +169,7 @@ export async function closeReleasedIssueIfNeeded(
   return true;
 }
 
-function composeIssueTitle(title: string, tag_name: string): string {
+function composePublishedIssueTitle(title: string, tag_name: string): string {
   return title.replace(/:tag_name:/g, tag_name);
 }
 
