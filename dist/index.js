@@ -8471,8 +8471,36 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-function findLatestRelease(tag_prefix, octokit) {
+var __asyncValues = (undefined && undefined.__asyncValues) || function (o) {
+    if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
+    var m = o[Symbol.asyncIterator], i;
+    return m ? m.call(o) : (o = typeof __values === "function" ? __values(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i);
+    function verb(n) { i[n] = o[n] && function (v) { return new Promise(function (resolve, reject) { v = o[n](v), settle(resolve, reject, v.done, v.value); }); }; }
+    function settle(resolve, reject, d, v) { Promise.resolve(v).then(function(v) { resolve({ value: v, done: d }); }, reject); }
+};
+function findLatestRelease(owner, repo, tag_prefix, octokit) {
+    var e_1, _a;
     return __awaiter(this, void 0, void 0, function* () {
+        try {
+            for (var _b = __asyncValues(octokit.paginate.iterator("GET /repos/{owner}/{repo}/releases", {
+                owner: owner,
+                repo: repo,
+            })), _c; _c = yield _b.next(), !_c.done;) {
+                const response = _c.value;
+                for (const release of response.data) {
+                    if (release.tag_name.startsWith(tag_prefix)) {
+                        return release;
+                    }
+                }
+            }
+        }
+        catch (e_1_1) { e_1 = { error: e_1_1 }; }
+        finally {
+            try {
+                if (_c && !_c.done && (_a = _b.return)) yield _a.call(_b);
+            }
+            finally { if (e_1) throw e_1.error; }
+        }
         return null;
     });
 }
@@ -8536,15 +8564,41 @@ function createReleaseIssue(owner, repo, release_labels, title, body, octokit) {
         return created_issue.data;
     });
 }
-function closeReleasedIssueIfNeeded(owner, repo, release_labels, tag_prefix, released_tag_name, octokit) {
+function closeReleasedIssueIfNeeded(owner, repo, release_labels, tag_prefix, released_tag_name, issue_title_released, octokit) {
     return __awaiter(this, void 0, void 0, function* () {
-        return {
-            number: 0,
-        };
+        if (!released_tag_name.startsWith(tag_prefix)) {
+            return false;
+        }
+        const latest_open_release_issue = yield findOpenReleaseIssue(owner, repo, release_labels, octokit);
+        if (latest_open_release_issue === null) {
+            console.warn("Could not find a open release issue");
+            return false;
+        }
+        const html_url = `https://github.com/{owner}/{repo}/releases/tag/{released_tag_name}`;
+        yield octokit.rest.issues.createComment({
+            owner: owner,
+            repo: repo,
+            issue_number: latest_open_release_issue.number,
+            body: "Released: " + html_url,
+        });
+        const title = issue_title_released
+            ? composePublishedIssueTitle(issue_title_released, released_tag_name)
+            : undefined;
+        yield octokit.rest.issues.update({
+            owner: owner,
+            repo: repo,
+            title: title,
+            issue_number: latest_open_release_issue.number,
+            state: "closed",
+        });
+        return true;
     });
 }
+function composePublishedIssueTitle(title, tag_name) {
+    return title.replace(/:tag_name:/g, tag_name);
+}
 function parseReleaseLabel(release_label) {
-    return [release_label];
+    return release_label.split(",").map((l) => l.trim());
 }
 
 ;// CONCATENATED MODULE: ./git-issue-release.ts
@@ -8564,23 +8618,28 @@ function gitIssueRelease() {
     return git_issue_release_awaiter(this, void 0, void 0, function* () {
         const release_tag_prefix = core.getInput("release-tag-prefix");
         const release_labels = parseReleaseLabel(core.getInput("release-label"));
+        const issue_title = core.getInput("release-issue-title");
         if (typeof process.env.GITHUB_TOKEN !== "string") {
             throw "GITHUB_TOKEN is required";
         }
         const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
         const { owner, repo } = github.context.repo;
-        const latest_release = yield findLatestRelease(release_tag_prefix, octokit);
+        const latest_release = yield findLatestRelease(owner, repo, release_tag_prefix, octokit);
         const previous_tag_name = latest_release === null || latest_release === void 0 ? void 0 : latest_release.tag_name;
-        const issue_title = "Release Issue";
         let head_commitish;
         if (github.context.payload.pull_request) {
+            // Pull Request
             head_commitish = github.context.payload.pull_request.merge_commit_sha;
         }
         else if (github.context.payload.head_commit) {
+            // Push
             head_commitish = github.context.payload.head_commit.id;
         }
+        else if (github.context.payload.release) {
+            // Release
+            head_commitish = github.context.payload.release.tag_name;
+        }
         else {
-            // TODO: add case of publishing a tag
             head_commitish = "";
             console.warn("faild to find head commit");
         }
@@ -8592,9 +8651,10 @@ function gitIssueRelease() {
         else {
             yield createReleaseIssue(owner, repo, release_labels, issue_title, notes, octokit);
         }
-        if (github.context.payload.action == "released") {
+        if (github.context.payload.action === "published" &&
+            !github.context.payload.release.prerelease) {
             const tag_name = github.context.payload.release.tag_name;
-            yield closeReleasedIssueIfNeeded(owner, repo, release_labels, release_tag_prefix, tag_name, octokit);
+            yield closeReleasedIssueIfNeeded(owner, repo, release_labels, release_tag_prefix, tag_name, core.getInput("release-issue-title-published"), octokit);
             return;
         }
     });
