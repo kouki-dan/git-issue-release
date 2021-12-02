@@ -9,8 +9,12 @@ export async function findLatestRelease(
   owner: string,
   repo: string,
   tag_prefix: string,
-  octokit: Octokit
+  octokit: Octokit,
+  option?: {
+    skip: number | undefined;
+  }
 ): Promise<Release | null> {
+  let skip = option?.skip ?? 0;
   for await (const response of octokit.paginate.iterator(
     "GET /repos/{owner}/{repo}/releases",
     {
@@ -20,7 +24,11 @@ export async function findLatestRelease(
   )) {
     for (const release of response.data) {
       if (release.tag_name.startsWith(tag_prefix)) {
-        return release;
+        if (skip <= 0) {
+          return release;
+        } else {
+          skip -= 1;
+        }
       }
     }
   }

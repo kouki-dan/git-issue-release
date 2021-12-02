@@ -17,7 +17,14 @@ export async function gitIssueRelease() {
     owner,
     repo,
     release_tag_prefix,
-    octokit
+    octokit,
+    {
+      skip:
+        github.context.payload["release"] &&
+        github.context.payload["action"] === "published"
+          ? 1
+          : 0,
+    }
   );
   const previous_tag_name = latest_release?.tag_name;
 
