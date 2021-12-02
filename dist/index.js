@@ -8478,18 +8478,25 @@ var __asyncValues = (undefined && undefined.__asyncValues) || function (o) {
     function verb(n) { i[n] = o[n] && function (v) { return new Promise(function (resolve, reject) { v = o[n](v), settle(resolve, reject, v.done, v.value); }); }; }
     function settle(resolve, reject, d, v) { Promise.resolve(v).then(function(v) { resolve({ value: v, done: d }); }, reject); }
 };
-function findLatestRelease(owner, repo, tag_prefix, octokit) {
+function findLatestRelease(owner, repo, tag_prefix, octokit, option) {
     var e_1, _a;
+    var _b;
     return __awaiter(this, void 0, void 0, function* () {
+        let skip = (_b = option === null || option === void 0 ? void 0 : option.skip) !== null && _b !== void 0 ? _b : 0;
         try {
-            for (var _b = __asyncValues(octokit.paginate.iterator("GET /repos/{owner}/{repo}/releases", {
+            for (var _c = __asyncValues(octokit.paginate.iterator("GET /repos/{owner}/{repo}/releases", {
                 owner: owner,
                 repo: repo,
-            })), _c; _c = yield _b.next(), !_c.done;) {
-                const response = _c.value;
+            })), _d; _d = yield _c.next(), !_d.done;) {
+                const response = _d.value;
                 for (const release of response.data) {
                     if (release.tag_name.startsWith(tag_prefix)) {
-                        return release;
+                        if (skip <= 0) {
+                            return release;
+                        }
+                        else {
+                            skip -= 1;
+                        }
                     }
                 }
             }
@@ -8497,7 +8504,7 @@ function findLatestRelease(owner, repo, tag_prefix, octokit) {
         catch (e_1_1) { e_1 = { error: e_1_1 }; }
         finally {
             try {
-                if (_c && !_c.done && (_a = _b.return)) yield _a.call(_b);
+                if (_d && !_d.done && (_a = _c.return)) yield _a.call(_c);
             }
             finally { if (e_1) throw e_1.error; }
         }
@@ -8574,7 +8581,7 @@ function closeReleasedIssueIfNeeded(owner, repo, release_labels, tag_prefix, rel
             console.warn("Could not find a open release issue");
             return false;
         }
-        const html_url = `https://github.com/{owner}/{repo}/releases/tag/{released_tag_name}`;
+        const html_url = `https://github.com/${owner}/${repo}/releases/tag/${released_tag_name}`;
         yield octokit.rest.issues.createComment({
             owner: owner,
             repo: repo,
@@ -8624,7 +8631,12 @@ function gitIssueRelease() {
         }
         const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
         const { owner, repo } = github.context.repo;
-        const latest_release = yield findLatestRelease(owner, repo, release_tag_prefix, octokit);
+        const latest_release = yield findLatestRelease(owner, repo, release_tag_prefix, octokit, {
+            skip: github.context.payload.release &&
+                github.context.payload.action === "published"
+                ? 1
+                : 0,
+        });
         const previous_tag_name = latest_release === null || latest_release === void 0 ? void 0 : latest_release.tag_name;
         let head_commitish;
         if (github.context.payload.pull_request) {
