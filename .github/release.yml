@@ -1,7 +1,4 @@
 changelog:
-  exclude:
-    labels:
-    authors:
   categories:
     - title: Breaking Changes 🛠
       labels:
