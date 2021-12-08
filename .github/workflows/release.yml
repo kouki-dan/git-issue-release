@@ -1,0 +1,29 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        type: choice
+        description: Version
+        options: 
+        - major
+        - minor
+        - patch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: build
+        run: |
+          npm run build
+          # TODO: commit if needed
+         
+      - name: version
+        run: |
+          npm version ${{ github.event.inputs.version }}
+      - name: push
+        run: |
+          # TODO: push
