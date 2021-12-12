@@ -8478,7 +8478,7 @@ var __asyncValues = (undefined && undefined.__asyncValues) || function (o) {
     function verb(n) { i[n] = o[n] && function (v) { return new Promise(function (resolve, reject) { v = o[n](v), settle(resolve, reject, v.done, v.value); }); }; }
     function settle(resolve, reject, d, v) { Promise.resolve(v).then(function(v) { resolve({ value: v, done: d }); }, reject); }
 };
-function findLatestRelease(owner, repo, tag_prefix, octokit, option) {
+function findLatestRelease(owner, repo, tag_pattern, octokit, option) {
     var e_1, _a;
     var _b;
     return __awaiter(this, void 0, void 0, function* () {
@@ -8490,7 +8490,7 @@ function findLatestRelease(owner, repo, tag_prefix, octokit, option) {
             })), _d; _d = yield _c.next(), !_d.done;) {
                 const response = _d.value;
                 for (const release of response.data) {
-                    if (release.tag_name.startsWith(tag_prefix)) {
+                    if (new RegExp(tag_pattern).test(release.tag_name)) {
                         if (skip <= 0) {
                             return release;
                         }
@@ -8571,9 +8571,9 @@ function createReleaseIssue(owner, repo, release_labels, title, body, octokit) {
         return created_issue.data;
     });
 }
-function closeReleasedIssueIfNeeded(owner, repo, release_labels, tag_prefix, released_tag_name, issue_title_released, octokit) {
+function closeReleasedIssueIfNeeded(owner, repo, release_labels, tag_pattern, released_tag_name, issue_title_released, octokit) {
     return __awaiter(this, void 0, void 0, function* () {
-        if (!released_tag_name.startsWith(tag_prefix)) {
+        if (!new RegExp(tag_pattern).test(released_tag_name)) {
             return false;
         }
         const latest_open_release_issue = yield findOpenReleaseIssue(owner, repo, release_labels, octokit);
@@ -8623,7 +8623,7 @@ var git_issue_release_awaiter = (undefined && undefined.__awaiter) || function (
 
 function gitIssueRelease() {
     return git_issue_release_awaiter(this, void 0, void 0, function* () {
-        const release_tag_prefix = core.getInput("release-tag-prefix");
+        const release_tag_pattern = core.getInput("release-tag-pattern");
         const release_labels = parseReleaseLabel(core.getInput("release-label"));
         const issue_title = core.getInput("release-issue-title");
         if (typeof process.env.GITHUB_TOKEN !== "string") {
@@ -8631,7 +8631,7 @@ function gitIssueRelease() {
         }
         const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
         const { owner, repo } = github.context.repo;
-        const latest_release = yield findLatestRelease(owner, repo, release_tag_prefix, octokit, {
+        const latest_release = yield findLatestRelease(owner, repo, release_tag_pattern, octokit, {
             skip: github.context.payload.release &&
                 github.context.payload.action === "published"
                 ? 1
@@ -8666,7 +8666,7 @@ function gitIssueRelease() {
         if (github.context.payload.action === "published" &&
             !github.context.payload.release.prerelease) {
             const tag_name = github.context.payload.release.tag_name;
-            yield closeReleasedIssueIfNeeded(owner, repo, release_labels, release_tag_prefix, tag_name, core.getInput("release-issue-title-published"), octokit);
+            yield closeReleasedIssueIfNeeded(owner, repo, release_labels, release_tag_pattern, tag_name, core.getInput("release-issue-title-published"), octokit);
             return;
         }
     });
