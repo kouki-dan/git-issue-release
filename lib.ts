@@ -8,7 +8,7 @@ export type Release = {
 export async function findLatestRelease(
   owner: string,
   repo: string,
-  tag_prefix: string,
+  tag_pattern: string,
   octokit: Octokit,
   option?: {
     skip: number | undefined;
@@ -23,7 +23,7 @@ export async function findLatestRelease(
     }
   )) {
     for (const release of response.data) {
-      if (release.tag_name.startsWith(tag_prefix)) {
+      if (new RegExp(tag_pattern).test(release.tag_name)) {
         if (skip <= 0) {
           return release;
         } else {
@@ -135,12 +135,12 @@ export async function closeReleasedIssueIfNeeded(
   owner: string,
   repo: string,
   release_labels: string[],
-  tag_prefix: string,
+  tag_pattern: string,
   released_tag_name: string,
   issue_title_released: string,
   octokit: Octokit
 ): Promise<boolean> {
-  if (!released_tag_name.startsWith(tag_prefix)) {
+  if (!new RegExp(tag_pattern).test(released_tag_name)) {
     return false;
   }
   const latest_open_release_issue = await findOpenReleaseIssue(

@@ -14,7 +14,7 @@ describe("findLatestRelease", () => {
       }),
     };
     expect(
-      lib.findLatestRelease("owner", "repo", "v", octokit)
+      lib.findLatestRelease("owner", "repo", "^v", octokit)
     ).resolves.toBeNull();
   });
 
@@ -33,7 +33,7 @@ describe("findLatestRelease", () => {
       }),
     };
     expect(
-      lib.findLatestRelease("owner", "repo", "v", octokit)
+      lib.findLatestRelease("owner", "repo", "^v", octokit)
     ).resolves.toBeNull();
   });
 
@@ -55,7 +55,7 @@ describe("findLatestRelease", () => {
       }),
     };
     expect(
-      lib.findLatestRelease("owner", "repo", "v", octokit)
+      lib.findLatestRelease("owner", "repo", "^v", octokit)
     ).resolves.toMatchObject({ tag_name: "v0.1.0" });
   });
 
@@ -81,7 +81,7 @@ describe("findLatestRelease", () => {
       }),
     };
     expect(
-      lib.findLatestRelease("owner", "repo", "v", octokit)
+      lib.findLatestRelease("owner", "repo", "^v", octokit)
     ).resolves.toMatchObject({ tag_name: "v0.1.0" });
   });
 
@@ -107,7 +107,7 @@ describe("findLatestRelease", () => {
       }),
     };
     expect(
-      lib.findLatestRelease("owner", "repo", "v", octokit, { skip: 1 })
+      lib.findLatestRelease("owner", "repo", "^v", octokit, { skip: 1 })
     ).resolves.toMatchObject({ tag_name: "v0.1.0" });
   });
 });
@@ -267,7 +267,7 @@ describe("closeReleasedIssueIfNeeded", () => {
         "owner",
         "repo",
         ["Release"],
-        "v",
+        "^v",
         "v1.0.0",
         "Release: :tag_name: is released!",
         octokit
@@ -288,7 +288,7 @@ describe("closeReleasedIssueIfNeeded", () => {
         "owner",
         "repo",
         ["Release"],
-        "v",
+        "^v",
         "1.0.0",
         "",
         octokit
@@ -311,7 +311,7 @@ describe("closeReleasedIssueIfNeeded", () => {
         "owner",
         "repo",
         ["Release"],
-        "v",
+        "^v",
         "v1.0.0",
         "",
         octokit
