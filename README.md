@@ -3,6 +3,8 @@
 This action automatically creates a release issue which includes pull requests after the latest release.
 It's inspired by [git-pr-release](https://github.com/x-motemen/git-pr-release).
 
+[![release](https://user-images.githubusercontent.com/1401711/145714638-0608c523-94e2-4fbd-9ba2-bee089922055.png)](https://youtu.be/Q9E6xt5aK3E)
+
 ## Inputs
 
 ## `release-tag-pattern`
