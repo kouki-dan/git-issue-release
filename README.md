@@ -5,9 +5,9 @@ It's inspired by [git-pr-release](https://github.com/x-motemen/git-pr-release).
 
 ## Inputs
 
-## `release-tag-prefix`
+## `release-tag-pattern`
 
-**Required** Prefix of release tag. git-issue-release uses it to find the latest release. Default `"v"`.
+**Required** Prefix of release tag written in regex. git-issue-release uses it to find the latest release. Default `"^v"` (starts with `v`).
 
 ## `release label`
 
@@ -48,6 +48,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          release-tag-prefix: v
+          release-tag-pattern: ^v
           release-label: "release"
 ```

@@ -15,5 +15,5 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          release-tag-prefix: v
+          release-tag-pattern: ^v
           release-label: "release"

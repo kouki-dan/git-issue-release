@@ -1,10 +1,10 @@
 name: 'git-issue-release'
 description: 'Automatically generate PRs diff from previous release'
 inputs:
-  release-tag-prefix:
-    description: "Prefix of release tag. It is used to link GitHub Releases and release Issues (find latest release or find issue to close after release is published)"
+  release-tag-pattern:
+    description: "Pattern of release tag written in regex. It is used to link GitHub Releases and release Issues (find latest release or find issue to close after release is published)"
     required: true
-    default: 'v'
+    default: '^v'
   release-label:
     description: 'Label of release issue (comma separated if there are multiple)'
     required: true

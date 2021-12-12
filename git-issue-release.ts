@@ -3,7 +3,7 @@ import * as github from "@actions/github";
 import * as lib from "./lib";
 
 export async function gitIssueRelease() {
-  const release_tag_prefix = core.getInput("release-tag-prefix");
+  const release_tag_pattern = core.getInput("release-tag-pattern");
   const release_labels = lib.parseReleaseLabel(core.getInput("release-label"));
   const issue_title = core.getInput("release-issue-title");
   if (typeof process.env.GITHUB_TOKEN !== "string") {
@@ -16,7 +16,7 @@ export async function gitIssueRelease() {
   const latest_release = await lib.findLatestRelease(
     owner,
     repo,
-    release_tag_prefix,
+    release_tag_pattern,
     octokit,
     {
       skip:
@@ -87,7 +87,7 @@ export async function gitIssueRelease() {
       owner,
       repo,
       release_labels,
-      release_tag_prefix,
+      release_tag_pattern,
       tag_name,
       core.getInput("release-issue-title-published"),
       octokit

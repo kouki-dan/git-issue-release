@@ -11,7 +11,7 @@ test("should create when release issue has not been cretaed", async () => {
 
   jest.spyOn(core, "getInput").mockImplementation((name) => {
     return {
-      "release-tag-prefix": "v",
+      "release-tag-pattern": "^v",
       "release-label": "Release",
       "release-issue-title": "Release Issue",
     }[name]!;
