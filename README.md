@@ -9,7 +9,7 @@ It's inspired by [git-pr-release](https://github.com/x-motemen/git-pr-release).
 
 **Required** Prefix of release tag written in regex. git-issue-release uses it to find the latest release. Default `"^v"` (starts with `v`).
 
-## `release label`
+## `release-label`
 
 **Required** Label of release issue. git-issue-release uses it to determine an issue as a release issue. An issue created by git-issue-release has these labels. Default `"release"`.
 
