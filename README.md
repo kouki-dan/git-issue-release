@@ -50,6 +50,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          release-tag-pattern: ^v
-          release-label: "release"
+          release-tag-pattern: ^v # Use it to find the latest release. `^v` means starts with v.
+          release-label: "release" # Use it to find release issues. Labels are not created automatically, so create them before use it.
 ```
