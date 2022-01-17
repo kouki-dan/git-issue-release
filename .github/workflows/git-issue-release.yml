@@ -5,6 +5,7 @@ on:
     types: [closed]
   release:
     types: [published]
+  workflow_dispatch:
 
 jobs:
   action:

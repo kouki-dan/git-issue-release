@@ -29,6 +29,7 @@ export async function gitIssueRelease() {
   const previous_tag_name = latest_release?.tag_name;
 
   let head_commitish: string;
+  console.log({ context: github.context });
   if (github.context.payload["pull_request"]) {
     // Pull Request
     head_commitish = github.context.payload["pull_request"]["merge_commit_sha"];

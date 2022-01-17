@@ -8639,6 +8639,7 @@ function gitIssueRelease() {
         });
         const previous_tag_name = latest_release === null || latest_release === void 0 ? void 0 : latest_release.tag_name;
         let head_commitish;
+        console.log({ context: github.context });
         if (github.context.payload.pull_request) {
             // Pull Request
             head_commitish = github.context.payload.pull_request.merge_commit_sha;
