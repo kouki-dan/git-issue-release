@@ -23,6 +23,10 @@ export async function findLatestRelease(
     }
   )) {
     for (const release of response.data) {
+      if (release.draft) {
+        // tag_name of draft release does not exist in repository yet.
+        continue;
+      }
       if (new RegExp(tag_pattern).test(release.tag_name)) {
         if (skip <= 0) {
           return release;

@@ -3,7 +3,7 @@ import * as lib from "./lib";
 let octokit: any = {};
 
 describe("findLatestRelease", () => {
-  test("no release", () => {
+  test("no release", async () => {
     octokit.paginate = {
       iterator: jest.fn(() => {
         return (async function* () {
@@ -13,18 +13,19 @@ describe("findLatestRelease", () => {
         })();
       }),
     };
-    expect(
+    await expect(
       lib.findLatestRelease("owner", "repo", "^v", octokit)
     ).resolves.toBeNull();
   });
 
-  test("has release but not correct prefix", () => {
+  test("has release but not correct prefix", async () => {
     octokit.paginate = {
       iterator: jest.fn(() => {
         return (async function* () {
           yield {
             data: [
               {
+                draft: false,
                 tag_name: "0.1.0",
               },
             ],
@@ -32,21 +33,23 @@ describe("findLatestRelease", () => {
         })();
       }),
     };
-    expect(
+    await expect(
       lib.findLatestRelease("owner", "repo", "^v", octokit)
     ).resolves.toBeNull();
   });
 
-  test("has release", () => {
+  test("has release", async () => {
     octokit.paginate = {
       iterator: jest.fn(() => {
         return (async function* () {
           yield {
             data: [
               {
+                draft: false,
                 tag_name: "v0.1.0",
               },
               {
+                draft: false,
                 tag_name: "v0.0.1",
               },
             ],
@@ -54,18 +57,19 @@ describe("findLatestRelease", () => {
         })();
       }),
     };
-    expect(
+    await expect(
       lib.findLatestRelease("owner", "repo", "^v", octokit)
     ).resolves.toMatchObject({ tag_name: "v0.1.0" });
   });
 
-  test("has release in next page", () => {
+  test("has release in next page", async () => {
     octokit.paginate = {
       iterator: jest.fn(() => {
         return (async function* () {
           yield {
             data: [
               {
+                draft: false,
                 tag_name: "0.1.0",
               },
             ],
@@ -73,6 +77,7 @@ describe("findLatestRelease", () => {
           yield {
             data: [
               {
+                draft: false,
                 tag_name: "v0.1.0",
               },
             ],
@@ -80,18 +85,19 @@ describe("findLatestRelease", () => {
         })();
       }),
     };
-    expect(
+    await expect(
       lib.findLatestRelease("owner", "repo", "^v", octokit)
     ).resolves.toMatchObject({ tag_name: "v0.1.0" });
   });
 
-  test("skip", () => {
+  test("skip", async () => {
     octokit.paginate = {
       iterator: jest.fn(() => {
         return (async function* () {
           yield {
             data: [
               {
+                draft: false,
                 tag_name: "v0.2.0",
               },
             ],
@@ -99,6 +105,7 @@ describe("findLatestRelease", () => {
           yield {
             data: [
               {
+                draft: false,
                 tag_name: "v0.1.0",
               },
             ],
@@ -106,8 +113,32 @@ describe("findLatestRelease", () => {
         })();
       }),
     };
-    expect(
+    await expect(
       lib.findLatestRelease("owner", "repo", "^v", octokit, { skip: 1 })
+    ).resolves.toMatchObject({ tag_name: "v0.1.0" });
+  });
+
+  test("draft releases", async () => {
+    octokit.paginate = {
+      iterator: jest.fn(() => {
+        return (async function* () {
+          yield {
+            data: [
+              {
+                draft: true,
+                tag_name: "v0.2.0",
+              },
+              {
+                draft: false,
+                tag_name: "v0.1.0",
+              },
+            ],
+          };
+        })();
+      }),
+    };
+    await expect(
+      lib.findLatestRelease("owner", "repo", "^v", octokit)
     ).resolves.toMatchObject({ tag_name: "v0.1.0" });
   });
 });
