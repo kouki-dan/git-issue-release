@@ -143,7 +143,7 @@ describe("findLatestRelease", () => {
   });
 });
 
-test("generateNotes", () => {
+test("generateNotes", async () => {
   octokit.request = jest.fn(() => {
     return Promise.resolve({
       data: {
@@ -151,8 +151,19 @@ test("generateNotes", () => {
       },
     });
   });
-  expect(
-    lib.generateNotes("owner", "repo", "head_commitish", "v1.0.0", octokit)
+  await expect(
+    lib.generateNotes(
+      "owner",
+      "repo",
+      "head_commitish",
+      "v1.0.0",
+      "description",
+      octokit
+    )
+  ).resolves.toBe("description\ngenerated notes");
+
+  await expect(
+    lib.generateNotes("owner", "repo", "head_commitish", "v1.0.0", "", octokit)
   ).resolves.toBe("generated notes");
 });
 
