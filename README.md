@@ -27,6 +27,9 @@ Issue title for release issue.
 
 Issue title after published. `:tag_name:` is replaced by a released tag name.
 
+## `description`
+
+An additional description for the release issue. It is inserted to the top of a body of an issue.
 
 ## Example usage
 

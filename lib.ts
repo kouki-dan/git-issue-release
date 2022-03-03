@@ -45,6 +45,7 @@ export async function generateNotes(
   repo: string,
   head_commitish: string,
   previous_tag_name: string | undefined,
+  description: string,
   octokit: Octokit
 ): Promise<string> {
   const release_notes = await octokit.request(
@@ -57,8 +58,11 @@ export async function generateNotes(
       previous_tag_name: previous_tag_name,
     }
   );
-
-  return release_notes.data.body;
+  if (description) {
+    return description + "\n" + release_notes.data.body;
+  } else {
+    return release_notes.data.body;
+  }
 }
 
 export type Issue = {

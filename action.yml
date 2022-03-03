@@ -17,6 +17,10 @@ inputs:
     description: 'Issue title after published'
     required: true
     default: "Release: :tag_name: is released!"
+  description:
+    description: "Additional description for release issue"
+    required: false
+    default: ""
 runs:
   using: 'node12'
   main: 'dist/index.js'
