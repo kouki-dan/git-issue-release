@@ -31,6 +31,11 @@ Issue title after published. `:tag_name:` is replaced by a released tag name.
 
 An additional description for the release issue. It is inserted to the top of a body of an issue.
 
+
+## `configuration-file-path`
+
+Specifies a path to a file in the repository containing configuration settings used for generating the release notes. [More details](https://docs.github.com/en/rest/reference/releases#generate-release-notes-content-for-a-release).
+
 ## Example usage
 
 Full example: https://github.com/kouki-dan/git-issue-release/blob/main/.github/workflows/git-issue-release.yml

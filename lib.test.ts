@@ -157,13 +157,22 @@ test("generateNotes", async () => {
       "repo",
       "head_commitish",
       "v1.0.0",
+      "",
       "description",
       octokit
     )
   ).resolves.toBe("description\ngenerated notes");
 
   await expect(
-    lib.generateNotes("owner", "repo", "head_commitish", "v1.0.0", "", octokit)
+    lib.generateNotes(
+      "owner",
+      "repo",
+      "head_commitish",
+      "v1.0.0",
+      "",
+      "",
+      octokit
+    )
   ).resolves.toBe("generated notes");
 });
 

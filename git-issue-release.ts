@@ -7,6 +7,7 @@ export async function gitIssueRelease() {
   const release_labels = lib.parseReleaseLabel(core.getInput("release-label"));
   const issue_title = core.getInput("release-issue-title");
   const description = core.getInput("description");
+  const configuration_file_path = core.getInput("configuration-file-path");
   if (typeof process.env.GITHUB_TOKEN !== "string") {
     throw "GITHUB_TOKEN is required";
   }
@@ -49,6 +50,7 @@ export async function gitIssueRelease() {
     repo,
     head_commitish,
     previous_tag_name,
+    configuration_file_path,
     description,
     octokit
   );
