@@ -8515,7 +8515,7 @@ function findLatestRelease(owner, repo, tag_pattern, octokit, option) {
         return null;
     });
 }
-function generateNotes(owner, repo, head_commitish, previous_tag_name, octokit) {
+function generateNotes(owner, repo, head_commitish, previous_tag_name, configuration_file_path, description, octokit) {
     return __awaiter(this, void 0, void 0, function* () {
         const release_notes = yield octokit.request("POST /repos/{owner}/{repo}/releases/generate-notes", {
             owner: owner,
@@ -8523,8 +8523,14 @@ function generateNotes(owner, repo, head_commitish, previous_tag_name, octokit) 
             tag_name: head_commitish,
             target_commitish: head_commitish,
             previous_tag_name: previous_tag_name,
+            configuration_file_path: configuration_file_path,
         });
-        return release_notes.data.body;
+        if (description) {
+            return description + "\n" + release_notes.data.body;
+        }
+        else {
+            return release_notes.data.body;
+        }
     });
 }
 function findOpenReleaseIssue(owner, repo, release_labels, octokit) {
@@ -8630,6 +8636,8 @@ function gitIssueRelease() {
         const release_tag_pattern = core.getInput("release-tag-pattern");
         const release_labels = parseReleaseLabel(core.getInput("release-label"));
         const issue_title = core.getInput("release-issue-title");
+        const description = core.getInput("description");
+        const configuration_file_path = core.getInput("configuration-file-path");
         if (typeof process.env.GITHUB_TOKEN !== "string") {
             throw "GITHUB_TOKEN is required";
         }
@@ -8659,7 +8667,7 @@ function gitIssueRelease() {
             head_commitish = "";
             console.warn("faild to find head commit");
         }
-        const notes = yield generateNotes(owner, repo, head_commitish, previous_tag_name, octokit);
+        const notes = yield generateNotes(owner, repo, head_commitish, previous_tag_name, configuration_file_path, description, octokit);
         const openReleaseIssue = yield findOpenReleaseIssue(owner, repo, release_labels, octokit);
         if (openReleaseIssue) {
             yield updateReleaseIssue(owner, repo, openReleaseIssue.number, issue_title, notes, octokit);
