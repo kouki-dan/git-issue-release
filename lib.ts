@@ -45,6 +45,7 @@ export async function generateNotes(
   repo: string,
   head_commitish: string,
   previous_tag_name: string | undefined,
+  configuration_file_path: string,
   description: string,
   octokit: Octokit
 ): Promise<string> {
@@ -56,6 +57,7 @@ export async function generateNotes(
       tag_name: head_commitish,
       target_commitish: head_commitish,
       previous_tag_name: previous_tag_name,
+      configuration_file_path: configuration_file_path,
     }
   );
   if (description) {
