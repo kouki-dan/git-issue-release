@@ -31,6 +31,10 @@ Issue title after published. `:tag_name:` is replaced by a released tag name.
 
 An additional description for the release issue. It is inserted to the top of a body of an issue.
 
+## `description-file-path`
+
+The file path in the repository for an additional description for release issue. The file content is inserted to the top of a body of an issue. If this parameter exists, `description` parameter will be ignored.
+
 
 ## `configuration-file-path`
 

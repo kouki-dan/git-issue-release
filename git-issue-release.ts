@@ -1,12 +1,30 @@
 import * as core from "@actions/core";
 import * as github from "@actions/github";
 import * as lib from "./lib";
+import { GitHub } from "@actions/github/lib/utils";
+
+async function getDescription(
+  owner: string,
+  repo: string,
+  octokit: InstanceType<typeof GitHub>
+) {
+  const description_file_path = core.getInput("description-file-path");
+  if (description_file_path) {
+    return await lib.fetchFileContent(
+      owner,
+      repo,
+      description_file_path,
+      octokit
+    );
+  } else {
+    return core.getInput("description");
+  }
+}
 
 export async function gitIssueRelease() {
   const release_tag_pattern = core.getInput("release-tag-pattern");
   const release_labels = lib.parseReleaseLabel(core.getInput("release-label"));
   const issue_title = core.getInput("release-issue-title");
-  const description = core.getInput("description");
   const configuration_file_path = core.getInput("configuration-file-path");
   if (typeof process.env.GITHUB_TOKEN !== "string") {
     throw "GITHUB_TOKEN is required";
@@ -51,7 +69,7 @@ export async function gitIssueRelease() {
     head_commitish,
     previous_tag_name,
     configuration_file_path,
-    description,
+    await getDescription(owner, repo, octokit),
     octokit
   );
 

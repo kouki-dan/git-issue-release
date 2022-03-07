@@ -21,6 +21,10 @@ inputs:
     description: "Additional description for release issue"
     required: false
     default: ""
+  description-file-path:
+    description: "The file path in the repository for an additional description for release issue"
+    required: false
+    default: ""
   configuration-file-path:
     description: "Specifies a path to a file in the repository containing configuration settings used for generating the release notes."
     required: false
