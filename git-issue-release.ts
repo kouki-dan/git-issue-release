@@ -101,8 +101,9 @@ export async function gitIssueRelease() {
   }
 
   if (
-    github.context.payload["action"] === "published" &&
-    !github.context.payload["release"]["prerelease"]
+    (github.context.payload["action"] === "published" &&
+      !github.context.payload["release"]["prerelease"]) ||
+    github.context.payload["action"] === "released"
   ) {
     const tag_name = github.context.payload["release"]["tag_name"];
     await lib.closeReleasedIssueIfNeeded(
