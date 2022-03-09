@@ -47,7 +47,7 @@ on:
   pull_request: # Automatically create or update issues when pull request is merged.
     types: [closed]
   release: # Automatically close the latest issue when release is published.
-    types: [published]
+    types: [released]
 
 jobs:
   action:
