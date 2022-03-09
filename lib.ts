@@ -187,6 +187,29 @@ export async function closeReleasedIssueIfNeeded(
   return true;
 }
 
+export async function fetchFileContent(
+  owner: string,
+  repo: string,
+  path: string,
+  octokit: Octokit
+): Promise<string> {
+  const content = await octokit.rest.repos.getContent({
+    owner: owner,
+    repo: repo,
+    path: path,
+  });
+
+  if (Array.isArray(content.data)) {
+    throw Error(`${path} is a not file, it is a directory`);
+  }
+
+  if (content.data.type === "file" && "content" in content.data) {
+    return Buffer.from(content.data.content, "base64").toString();
+  } else {
+    throw Error(`${path} is a not file, it may be a simlink or a submodule`);
+  }
+}
+
 function composePublishedIssueTitle(title: string, tag_name: string): string {
   return title.replace(/:tag_name:/g, tag_name);
 }

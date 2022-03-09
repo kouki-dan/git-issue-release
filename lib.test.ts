@@ -371,6 +371,84 @@ describe("closeReleasedIssueIfNeeded", () => {
   });
 });
 
+describe("getDescriptionContent", () => {
+  test("in case of a file", async () => {
+    octokit.rest = {
+      repos: {
+        getContent: jest.fn(() => {
+          return Promise.resolve({
+            data: {
+              content: Buffer.from("encoded content").toString("base64"),
+              type: "file",
+            },
+          });
+        }),
+      },
+    };
+    await expect(
+      lib.fetchFileContent("owner", "repo", "path", octokit)
+    ).resolves.toBe("encoded content");
+  });
+
+  test("in case of a directory", async () => {
+    octokit.rest = {
+      repos: {
+        getContent: jest.fn(() => {
+          return Promise.resolve({
+            data: [
+              {
+                content: Buffer.from("encoded content").toString("base64"),
+                type: "file",
+              },
+            ],
+          });
+        }),
+      },
+    };
+    await expect(
+      lib.fetchFileContent("owner", "repo", "path", octokit)
+    ).rejects.toThrow();
+  });
+
+  test("in case of a simlink", async () => {
+    octokit.rest = {
+      repos: {
+        getContent: jest.fn(() => {
+          return Promise.resolve({
+            data: [
+              {
+                type: "simlink",
+              },
+            ],
+          });
+        }),
+      },
+    };
+    await expect(
+      lib.fetchFileContent("owner", "repo", "path", octokit)
+    ).rejects.toThrow();
+  });
+
+  test("in case of a submodule", async () => {
+    octokit.rest = {
+      repos: {
+        getContent: jest.fn(() => {
+          return Promise.resolve({
+            data: [
+              {
+                type: "submodule",
+              },
+            ],
+          });
+        }),
+      },
+    };
+    await expect(
+      lib.fetchFileContent("owner", "repo", "path", octokit)
+    ).rejects.toThrow();
+  });
+});
+
 test("parseReleaseLabel", () => {
   expect(lib.parseReleaseLabel("Release")).toEqual(["Release"]);
   expect(lib.parseReleaseLabel("Release1,Release2")).toEqual([
