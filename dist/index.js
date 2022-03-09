@@ -5448,9 +5448,17 @@ AbortError.prototype = Object.create(Error.prototype);
 AbortError.prototype.constructor = AbortError;
 AbortError.prototype.name = 'AbortError';
 
+const URL$1 = Url.URL || whatwgUrl.URL;
+
 // fix an issue where "PassThrough", "resolve" aren't a named export for node <10
 const PassThrough$1 = Stream.PassThrough;
-const resolve_url = Url.resolve;
+
+const isDomainOrSubdomain = function isDomainOrSubdomain(destination, original) {
+	const orig = new URL$1(original).hostname;
+	const dest = new URL$1(destination).hostname;
+
+	return orig === dest || orig[orig.length - dest.length - 1] === '.' && orig.endsWith(dest);
+};
 
 /**
  * Fetch function
@@ -5538,7 +5546,19 @@ function fetch(url, opts) {
 				const location = headers.get('Location');
 
 				// HTTP fetch step 5.3
-				const locationURL = location === null ? null : resolve_url(request.url, location);
+				let locationURL = null;
+				try {
+					locationURL = location === null ? null : new URL$1(location, request.url).toString();
+				} catch (err) {
+					// error here can only be invalid URL in Location: header
+					// do not throw when options.redirect == manual
+					// let the user extract the errorneous redirect URL
+					if (request.redirect !== 'manual') {
+						reject(new FetchError(`uri requested responds with an invalid redirect URL: ${location}`, 'invalid-redirect'));
+						finalize();
+						return;
+					}
+				}
 
 				// HTTP fetch step 5.5
 				switch (request.redirect) {
@@ -5585,6 +5605,12 @@ function fetch(url, opts) {
 							timeout: request.timeout,
 							size: request.size
 						};
+
+						if (!isDomainOrSubdomain(request.url, locationURL)) {
+							for (const name of ['authorization', 'www-authenticate', 'cookie', 'cookie2']) {
+								requestOpts.headers.delete(name);
+							}
+						}
 
 						// HTTP-redirect fetch step 9
 						if (res.statusCode !== 303 && request.body && getTotalBytes(request) === null) {
@@ -8611,6 +8637,24 @@ function closeReleasedIssueIfNeeded(owner, repo, release_labels, tag_pattern, re
         return true;
     });
 }
+function fetchFileContent(owner, repo, path, octokit) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const content = yield octokit.rest.repos.getContent({
+            owner: owner,
+            repo: repo,
+            path: path,
+        });
+        if (Array.isArray(content.data)) {
+            throw Error(`${path} is a not file, it is a directory`);
+        }
+        if (content.data.type === "file" && "content" in content.data) {
+            return Buffer.from(content.data.content, "base64").toString();
+        }
+        else {
+            throw Error(`${path} is a not file, it may be a simlink or a submodule`);
+        }
+    });
+}
 function composePublishedIssueTitle(title, tag_name) {
     return title.replace(/:tag_name:/g, tag_name);
 }
@@ -8631,12 +8675,22 @@ var git_issue_release_awaiter = (undefined && undefined.__awaiter) || function (
 
 
 
+function getDescription(owner, repo, octokit) {
+    return git_issue_release_awaiter(this, void 0, void 0, function* () {
+        const description_file_path = core.getInput("description-file-path");
+        if (description_file_path) {
+            return yield fetchFileContent(owner, repo, description_file_path, octokit);
+        }
+        else {
+            return core.getInput("description");
+        }
+    });
+}
 function gitIssueRelease() {
     return git_issue_release_awaiter(this, void 0, void 0, function* () {
         const release_tag_pattern = core.getInput("release-tag-pattern");
         const release_labels = parseReleaseLabel(core.getInput("release-label"));
         const issue_title = core.getInput("release-issue-title");
-        const description = core.getInput("description");
         const configuration_file_path = core.getInput("configuration-file-path");
         if (typeof process.env.GITHUB_TOKEN !== "string") {
             throw "GITHUB_TOKEN is required";
@@ -8667,7 +8721,7 @@ function gitIssueRelease() {
             head_commitish = "";
             console.warn("faild to find head commit");
         }
-        const notes = yield generateNotes(owner, repo, head_commitish, previous_tag_name, configuration_file_path, description, octokit);
+        const notes = yield generateNotes(owner, repo, head_commitish, previous_tag_name, configuration_file_path, yield getDescription(owner, repo, octokit), octokit);
         const openReleaseIssue = yield findOpenReleaseIssue(owner, repo, release_labels, octokit);
         if (openReleaseIssue) {
             yield updateReleaseIssue(owner, repo, openReleaseIssue.number, issue_title, notes, octokit);
@@ -8675,8 +8729,9 @@ function gitIssueRelease() {
         else {
             yield createReleaseIssue(owner, repo, release_labels, issue_title, notes, octokit);
         }
-        if (github.context.payload.action === "published" &&
-            !github.context.payload.release.prerelease) {
+        if ((github.context.payload.action === "published" &&
+            !github.context.payload.release.prerelease) ||
+            github.context.payload.action === "released") {
             const tag_name = github.context.payload.release.tag_name;
             yield closeReleasedIssueIfNeeded(owner, repo, release_labels, release_tag_pattern, tag_name, core.getInput("release-issue-title-published"), octokit);
             return;
