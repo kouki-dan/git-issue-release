@@ -4,7 +4,7 @@ on:
   pull_request:
     types: [closed]
   release:
-    types: [published]
+    types: [released]
 
 jobs:
   action:
