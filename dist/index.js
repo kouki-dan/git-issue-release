@@ -8699,7 +8699,8 @@ function gitIssueRelease() {
         const { owner, repo } = github.context.repo;
         const latest_release = yield findLatestRelease(owner, repo, release_tag_pattern, octokit, {
             skip: github.context.payload.release &&
-                github.context.payload.action === "published"
+                (github.context.payload.action === "published" ||
+                    github.context.payload.action === "released")
                 ? 1
                 : 0,
         });
