@@ -41,7 +41,8 @@ export async function gitIssueRelease() {
     {
       skip:
         github.context.payload["release"] &&
-        github.context.payload["action"] === "published"
+        (github.context.payload["action"] === "published" ||
+          github.context.payload["action"] === "released")
           ? 1
           : 0,
     }
