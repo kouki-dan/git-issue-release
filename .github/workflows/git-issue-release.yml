@@ -1,8 +1,9 @@
 name: git-issue-release
 
 on:
-  pull_request:
-    types: [closed]
+  push:
+    branches:
+      - main
   release:
     types: [released]
 

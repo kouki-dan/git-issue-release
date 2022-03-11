@@ -48,8 +48,9 @@ Full example: https://github.com/kouki-dan/git-issue-release/blob/main/.github/w
 name: git-issue-release
 
 on:
-  pull_request: # Automatically create or update issues when pull request is merged.
-    types: [closed]
+  push: # Automatically create or update issues when pull request is merged.
+    branches:
+      - main # Replace this with your main branch
   release: # Automatically close the latest issue when release is published.
     types: [released]
 
