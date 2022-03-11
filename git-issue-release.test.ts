@@ -3,9 +3,30 @@ import * as core from "@actions/core";
 import * as lib from "./lib";
 import { gitIssueRelease } from "./git-issue-release";
 
+let originalContext = { ...github.context };
+
+afterEach(() => {
+  // Restore original @actions/github context
+  Object.defineProperty(github, "context", {
+    value: originalContext,
+  });
+});
+
 test("should create when release issue has not been cretaed", async () => {
   process.env.GITHUB_TOKEN = "token";
-  process.env.GITHUB_REPOSITORY = "owner/repo";
+  Object.defineProperty(github, "context", {
+    value: {
+      repo: {
+        owner: "owner",
+        repo: "repo",
+      },
+      payload: {
+        pull_request: {
+          merged: true,
+        },
+      },
+    },
+  });
   const octokit: any = {};
   jest.spyOn(github, "getOctokit").mockReturnValueOnce(octokit);
 
@@ -44,7 +65,20 @@ test("should create when release issue has not been cretaed", async () => {
 
 test("Should update when release issue has been created", async () => {
   process.env.GITHUB_TOKEN = "token";
-  process.env.GITHUB_REPOSITORY = "owner/repo";
+  Object.defineProperty(github, "context", {
+    value: {
+      repo: {
+        owner: "owner",
+        repo: "repo",
+      },
+      payload: {
+        pull_request: {
+          merged: true,
+        },
+      },
+    },
+  });
+
   const octokit: any = {};
   jest.spyOn(github, "getOctokit").mockReturnValueOnce(octokit);
 

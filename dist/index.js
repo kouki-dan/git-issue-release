@@ -8708,6 +8708,10 @@ function gitIssueRelease() {
         let head_commitish;
         if (github.context.payload.pull_request) {
             // Pull Request
+            if (!github.context.payload.pull_request.merged) {
+                console.log("Skipped by pull Request is not merged yet.");
+                return;
+            }
             head_commitish = github.context.payload.pull_request.merge_commit_sha;
         }
         else if (github.context.payload.head_commit) {
