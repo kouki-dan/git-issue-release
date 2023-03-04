@@ -99,13 +99,17 @@ export async function updateReleaseIssue(
   octokit: Octokit
 ): Promise<void> {
   // TODO: Get current issue body and merge it.
-  await octokit.request("PATCH /repos/{owner}/{repo}/issues/{issue_number}", {
-    owner: owner,
-    repo: repo,
-    issue_number: issue_number,
-    title: title,
-    body: body,
-  });
+  try {
+    await octokit.request("PATCH /repos/{owner}/{repo}/issues/{issue_number}", {
+      owner: owner,
+      repo: repo,
+      issue_number: issue_number,
+      title: title,
+      body: body,
+    });
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 export async function createReleaseIssue(

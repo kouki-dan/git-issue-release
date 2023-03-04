@@ -10321,13 +10321,18 @@ function findOpenReleaseIssue(owner, repo, release_labels, octokit) {
 function updateReleaseIssue(owner, repo, issue_number, title, body, octokit) {
     return __awaiter(this, void 0, void 0, function* () {
         // TODO: Get current issue body and merge it.
-        yield octokit.request("PATCH /repos/{owner}/{repo}/issues/{issue_number}", {
-            owner: owner,
-            repo: repo,
-            issue_number: issue_number,
-            title: title,
-            body: body,
-        });
+        try {
+            yield octokit.request("PATCH /repos/{owner}/{repo}/issues/{issue_number}", {
+                owner: owner,
+                repo: repo,
+                issue_number: issue_number,
+                title: title,
+                body: body,
+            });
+        }
+        catch (error) {
+            console.error(error);
+        }
     });
 }
 function createReleaseIssue(owner, repo, release_labels, title, body, octokit) {
