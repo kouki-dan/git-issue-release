@@ -10241,36 +10241,43 @@ var __asyncValues = (undefined && undefined.__asyncValues) || function (o) {
     function settle(resolve, reject, d, v) { Promise.resolve(v).then(function(v) { resolve({ value: v, done: d }); }, reject); }
 };
 function findLatestRelease(owner, repo, tag_pattern, octokit, option) {
-    var e_1, _a;
-    var _b;
+    var _a, e_1, _b, _c;
+    var _d;
     return __awaiter(this, void 0, void 0, function* () {
-        let skip = (_b = option === null || option === void 0 ? void 0 : option.skip) !== null && _b !== void 0 ? _b : 0;
+        let skip = (_d = option === null || option === void 0 ? void 0 : option.skip) !== null && _d !== void 0 ? _d : 0;
         try {
-            for (var _c = __asyncValues(octokit.paginate.iterator("GET /repos/{owner}/{repo}/releases", {
+            for (var _e = true, _f = __asyncValues(octokit.paginate.iterator("GET /repos/{owner}/{repo}/releases", {
                 owner: owner,
                 repo: repo,
-            })), _d; _d = yield _c.next(), !_d.done;) {
-                const response = _d.value;
-                for (const release of response.data) {
-                    if (release.draft) {
-                        // tag_name of draft release does not exist in repository yet.
-                        continue;
-                    }
-                    if (new RegExp(tag_pattern).test(release.tag_name)) {
-                        if (skip <= 0) {
-                            return release;
+            })), _g; _g = yield _f.next(), _a = _g.done, !_a;) {
+                _c = _g.value;
+                _e = false;
+                try {
+                    const response = _c;
+                    for (const release of response.data) {
+                        if (release.draft) {
+                            // tag_name of draft release does not exist in repository yet.
+                            continue;
                         }
-                        else {
-                            skip -= 1;
+                        if (new RegExp(tag_pattern).test(release.tag_name)) {
+                            if (skip <= 0) {
+                                return release;
+                            }
+                            else {
+                                skip -= 1;
+                            }
                         }
                     }
+                }
+                finally {
+                    _e = true;
                 }
             }
         }
         catch (e_1_1) { e_1 = { error: e_1_1 }; }
         finally {
             try {
-                if (_d && !_d.done && (_a = _c.return)) yield _a.call(_c);
+                if (!_e && !_a && (_b = _f.return)) yield _b.call(_f);
             }
             finally { if (e_1) throw e_1.error; }
         }
@@ -10433,6 +10440,7 @@ function gitIssueRelease() {
         }
         const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
         const { owner, repo } = github.context.repo;
+        console.log("Finding latest released tag...");
         const latest_release = yield findLatestRelease(owner, repo, release_tag_pattern, octokit, {
             skip: github.context.payload.release &&
                 (github.context.payload.action === "published" ||
@@ -10440,6 +10448,9 @@ function gitIssueRelease() {
                 ? 1
                 : 0,
         });
+        if (latest_release) {
+            console.log(`Found the latest release with tag ${latest_release.tag_name}.`);
+        }
         const previous_tag_name = latest_release === null || latest_release === void 0 ? void 0 : latest_release.tag_name;
         let head_commitish;
         if (github.context.payload.pull_request) {
@@ -10462,13 +10473,20 @@ function gitIssueRelease() {
             head_commitish = "";
             console.warn("faild to find head commit");
         }
+        console.log("Generating release note...");
         const notes = yield generateNotes(owner, repo, head_commitish, previous_tag_name, configuration_file_path, yield getDescription(owner, repo, octokit), octokit);
+        console.log("Release note is successfully created.");
+        console.log("Finding the open release issue...");
         const openReleaseIssue = yield findOpenReleaseIssue(owner, repo, release_labels, octokit);
         if (openReleaseIssue) {
+            console.log("The open release issue is found. Will attempt to update.");
             yield updateReleaseIssue(owner, repo, openReleaseIssue.number, issue_title, notes, octokit);
+            console.log("Open release issue is successfully updated.");
         }
         else {
+            console.log("There is no open release issue. Will attempt to create a new one.");
             yield createReleaseIssue(owner, repo, release_labels, issue_title, notes, octokit);
+            console.log("Open release issue is successfully created.");
         }
         if ((github.context.payload.action === "published" &&
             !github.context.payload.release.prerelease) ||

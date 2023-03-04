@@ -33,6 +33,7 @@ export async function gitIssueRelease() {
 
   const { owner, repo } = github.context.repo;
 
+  console.log("Finding latest released tag...")
   const latest_release = await lib.findLatestRelease(
     owner,
     repo,
@@ -47,6 +48,9 @@ export async function gitIssueRelease() {
           : 0,
     }
   );
+  if (latest_release) {
+    console.log(`Found the latest release with tag ${latest_release.tag_name}.`)
+  }
   const previous_tag_name = latest_release?.tag_name;
 
   let head_commitish: string;
@@ -68,6 +72,7 @@ export async function gitIssueRelease() {
     console.warn("faild to find head commit");
   }
 
+  console.log("Generating release note...")
   const notes = await lib.generateNotes(
     owner,
     repo,
@@ -77,7 +82,9 @@ export async function gitIssueRelease() {
     await getDescription(owner, repo, octokit),
     octokit
   );
+  console.log("Release note is successfully created.")
 
+  console.log("Finding the open release issue...")
   const openReleaseIssue = await lib.findOpenReleaseIssue(
     owner,
     repo,
@@ -86,6 +93,7 @@ export async function gitIssueRelease() {
   );
 
   if (openReleaseIssue) {
+    console.log("The open release issue is found. Will attempt to update.")
     await lib.updateReleaseIssue(
       owner,
       repo,
@@ -94,7 +102,9 @@ export async function gitIssueRelease() {
       notes,
       octokit
     );
+    console.log("Open release issue is successfully updated.")
   } else {
+    console.log("There is no open release issue. Will attempt to create a new one.")
     await lib.createReleaseIssue(
       owner,
       repo,
@@ -103,6 +113,7 @@ export async function gitIssueRelease() {
       notes,
       octokit
     );
+    console.log("Open release issue is successfully created.")
   }
 
   if (
