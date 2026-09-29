@@ -10241,43 +10241,36 @@ var __asyncValues = (undefined && undefined.__asyncValues) || function (o) {
     function settle(resolve, reject, d, v) { Promise.resolve(v).then(function(v) { resolve({ value: v, done: d }); }, reject); }
 };
 function findLatestRelease(owner, repo, tag_pattern, octokit, option) {
-    var _a, e_1, _b, _c;
-    var _d;
+    var e_1, _a;
+    var _b;
     return __awaiter(this, void 0, void 0, function* () {
-        let skip = (_d = option === null || option === void 0 ? void 0 : option.skip) !== null && _d !== void 0 ? _d : 0;
+        let skip = (_b = option === null || option === void 0 ? void 0 : option.skip) !== null && _b !== void 0 ? _b : 0;
         try {
-            for (var _e = true, _f = __asyncValues(octokit.paginate.iterator("GET /repos/{owner}/{repo}/releases", {
+            for (var _c = __asyncValues(octokit.paginate.iterator("GET /repos/{owner}/{repo}/releases", {
                 owner: owner,
                 repo: repo,
-            })), _g; _g = yield _f.next(), _a = _g.done, !_a;) {
-                _c = _g.value;
-                _e = false;
-                try {
-                    const response = _c;
-                    for (const release of response.data) {
-                        if (release.draft) {
-                            // tag_name of draft release does not exist in repository yet.
-                            continue;
+            })), _d; _d = yield _c.next(), !_d.done;) {
+                const response = _d.value;
+                for (const release of response.data) {
+                    if (release.draft) {
+                        // tag_name of draft release does not exist in repository yet.
+                        continue;
+                    }
+                    if (new RegExp(tag_pattern).test(release.tag_name)) {
+                        if (skip <= 0) {
+                            return release;
                         }
-                        if (new RegExp(tag_pattern).test(release.tag_name)) {
-                            if (skip <= 0) {
-                                return release;
-                            }
-                            else {
-                                skip -= 1;
-                            }
+                        else {
+                            skip -= 1;
                         }
                     }
-                }
-                finally {
-                    _e = true;
                 }
             }
         }
         catch (e_1_1) { e_1 = { error: e_1_1 }; }
         finally {
             try {
-                if (!_e && !_a && (_b = _f.return)) yield _b.call(_f);
+                if (_d && !_d.done && (_a = _c.return)) yield _a.call(_c);
             }
             finally { if (e_1) throw e_1.error; }
         }
@@ -10332,11 +10325,12 @@ function updateReleaseIssue(owner, repo, issue_number, title, body, octokit) {
 }
 function createReleaseIssue(owner, repo, release_labels, title, body, octokit) {
     return __awaiter(this, void 0, void 0, function* () {
-        const exsisting_labels_response = yield octokit.request("GET /repos/{owner}/{repo}/labels", {
+        const exsisting_labels = yield octokit.paginate("GET /repos/{owner}/{repo}/labels", {
             owner: owner,
             repo: repo,
+            per_page: 100,
         });
-        const labels = exsisting_labels_response.data.filter((l) => release_labels.includes(l.name));
+        const labels = exsisting_labels.filter((l) => release_labels.includes(l.name));
         if (labels.length != release_labels.length) {
             throw Error("Label has not been created. You should create a label.");
         }

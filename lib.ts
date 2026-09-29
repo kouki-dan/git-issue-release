@@ -116,14 +116,15 @@ export async function createReleaseIssue(
   body: string,
   octokit: Octokit
 ): Promise<Issue> {
-  const exsisting_labels_response = await octokit.request(
+  const exsisting_labels = await octokit.paginate(
     "GET /repos/{owner}/{repo}/labels",
     {
       owner: owner,
       repo: repo,
+      per_page: 100,
     }
   );
-  const labels = exsisting_labels_response.data.filter((l) =>
+  const labels = exsisting_labels.filter((l) =>
     release_labels.includes(l.name)
   );
 

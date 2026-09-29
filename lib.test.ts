@@ -184,7 +184,7 @@ describe("findOpenReleaseIssue", () => {
       expect(args["state"]).toBe("open");
       return Promise.resolve({ data: [] });
     });
-    expect(
+    return expect(
       lib.findOpenReleaseIssue("owner", "repo", ["Release"], octokit)
     ).resolves.toBeNull();
   });
@@ -203,7 +203,7 @@ describe("findOpenReleaseIssue", () => {
         ],
       });
     });
-    expect(
+    return expect(
       lib.findOpenReleaseIssue("owner", "repo", ["Release"], octokit)
     ).resolves.toMatchObject({ number: 1 });
   });
@@ -216,7 +216,7 @@ describe("findOpenReleaseIssue", () => {
 
       return Promise.resolve({ data: [] });
     });
-    expect(
+    return expect(
       lib.findOpenReleaseIssue(
         "owner",
         "repo",
@@ -239,17 +239,15 @@ test("updateReleaseIssue", () => {
 
 describe("createReleaseIssue", () => {
   test("Has enough labels", () => {
-    octokit.request = jest.fn((_) =>
-      Promise.resolve({
-        data: [
-          {
-            name: "hoge",
-          },
-          {
-            name: "Release",
-          },
-        ],
-      })
+    octokit.paginate = jest.fn((_) =>
+      Promise.resolve([
+        {
+          name: "hoge",
+        },
+        {
+          name: "Release",
+        },
+      ])
     );
     octokit.rest = {
       issues: {
@@ -264,7 +262,7 @@ describe("createReleaseIssue", () => {
         }),
       },
     };
-    expect(
+    return expect(
       lib.createReleaseIssue(
         "owner",
         "repo",
@@ -277,14 +275,12 @@ describe("createReleaseIssue", () => {
   });
 
   test("Labels has not been created.", () => {
-    octokit.request = jest.fn((_) =>
-      Promise.resolve({
-        data: [
-          {
-            name: "hoge",
-          },
-        ],
-      })
+    octokit.paginate = jest.fn((_) =>
+      Promise.resolve([
+        {
+          name: "hoge",
+        },
+      ])
     );
     return expect(
       lib.createReleaseIssue(
@@ -300,7 +296,14 @@ describe("createReleaseIssue", () => {
 });
 
 describe("closeReleasedIssueIfNeeded", () => {
-  test("match tag prefix", () => {
+  beforeEach(() => {
+    octokit.request = jest.fn((endpoint) => {
+      expect(endpoint).toBe("GET /repos/{owner}/{repo}/issues");
+      return Promise.resolve({ data: [{ number: 1 }] });
+    });
+  });
+
+  test("match tag prefix", async () => {
     octokit.rest = {
       issues: {
         createComment: jest.fn((args) => {
@@ -313,7 +316,7 @@ describe("closeReleasedIssueIfNeeded", () => {
         }),
       },
     };
-    expect(
+    await expect(
       lib.closeReleasedIssueIfNeeded(
         "owner",
         "repo",
@@ -326,7 +329,7 @@ describe("closeReleasedIssueIfNeeded", () => {
     ).resolves.toBe(true);
   });
 
-  test("no match tag prefix", () => {
+  test("no match tag prefix", async () => {
     const mock = jest.fn();
     octokit.rest = {
       issues: {
@@ -334,7 +337,7 @@ describe("closeReleasedIssueIfNeeded", () => {
         update: mock,
       },
     };
-    expect(
+    await expect(
       lib.closeReleasedIssueIfNeeded(
         "owner",
         "repo",
@@ -348,7 +351,7 @@ describe("closeReleasedIssueIfNeeded", () => {
     expect(mock).not.toBeCalled();
   });
 
-  test("release title is empty", () => {
+  test("release title is empty", async () => {
     octokit.rest = {
       issues: {
         createComment: jest.fn(),
@@ -357,7 +360,7 @@ describe("closeReleasedIssueIfNeeded", () => {
         }),
       },
     };
-    expect(
+    await expect(
       lib.closeReleasedIssueIfNeeded(
         "owner",
         "repo",
