@@ -1,8 +1,10 @@
 {
   "compilerOptions": {
-    "target": "es2015",
-    "moduleResolution": "node",
+    "target": "es2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
     "esModuleInterop": true,
+    "isolatedModules": true,
     "strict": true
   }
 }

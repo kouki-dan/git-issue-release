@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "ncc build index.ts --license licenses.txt",
-    "test": "jest"
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest"
   },
   "repository": {
     "type": "git",
@@ -19,14 +19,16 @@
   },
   "homepage": "https://github.com/kouki-dan/git-issue-release#readme",
   "dependencies": {
-    "@actions/core": "^1.9.1",
-    "@actions/github": "^5.0.0"
+    "@actions/core": "^3.0.1",
+    "@actions/github": "^9.1.1"
   },
   "devDependencies": {
-    "@types/jest": "27.4.1",
-    "@vercel/ncc": "0.36.1",
-    "jest": "27.5.1",
-    "ts-jest": "27.1.5",
-    "typescript": "4.6.2"
-  }
+    "@jest/globals": "30.5.2",
+    "@types/jest": "30.0.0",
+    "@vercel/ncc": "0.45.0",
+    "jest": "30.5.2",
+    "ts-jest": "29.4.14",
+    "typescript": "5.9.3"
+  },
+  "type": "module"
 }
