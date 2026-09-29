@@ -1,4 +1,5 @@
-import * as lib from "./lib";
+import { jest } from "@jest/globals";
+import * as lib from "./lib.js";
 
 let octokit: any = {};
 
@@ -178,7 +179,7 @@ test("generateNotes", async () => {
 
 describe("findOpenReleaseIssue", () => {
   test("No release issue", () => {
-    octokit.request = jest.fn((endpoint, args) => {
+    octokit.request = jest.fn((endpoint: string, args: any) => {
       expect(endpoint).toBe("GET /repos/{owner}/{repo}/issues");
       expect(args["labels"]).toBe("Release");
       expect(args["state"]).toBe("open");
@@ -190,7 +191,7 @@ describe("findOpenReleaseIssue", () => {
   });
 
   test("Has release issue", () => {
-    octokit.request = jest.fn((endpoint, args) => {
+    octokit.request = jest.fn((endpoint: string, args: any) => {
       expect(endpoint).toBe("GET /repos/{owner}/{repo}/issues");
       expect(args["labels"]).toBe("Release");
       expect(args["state"]).toBe("open");
@@ -209,7 +210,7 @@ describe("findOpenReleaseIssue", () => {
   });
 
   test("Multiple labels are separated by commas", () => {
-    octokit.request = jest.fn((endpoint, args) => {
+    octokit.request = jest.fn((endpoint: string, args: any) => {
       expect(endpoint).toBe("GET /repos/{owner}/{repo}/issues");
       expect(args["labels"]).toBe("Release,Release2");
       expect(args["state"]).toBe("open");
@@ -228,7 +229,7 @@ describe("findOpenReleaseIssue", () => {
 });
 
 test("updateReleaseIssue", () => {
-  octokit.request = jest.fn((endpoint, args) => {
+  octokit.request = jest.fn((endpoint: string, args: any) => {
     expect(endpoint).toBe("PATCH /repos/{owner}/{repo}/issues/{issue_number}");
     expect(args["title"]).toBe("title");
     expect(args["body"]).toBe("body");
@@ -251,7 +252,7 @@ describe("createReleaseIssue", () => {
     );
     octokit.rest = {
       issues: {
-        create: jest.fn((args) => {
+        create: jest.fn((args: any) => {
           expect(args["labels"].length).toBe(1);
           expect(args["labels"][0]["name"]).toBe("Release");
           return Promise.resolve({
@@ -306,12 +307,12 @@ describe("closeReleasedIssueIfNeeded", () => {
   test("match tag prefix", async () => {
     octokit.rest = {
       issues: {
-        createComment: jest.fn((args) => {
+        createComment: jest.fn((args: any) => {
           expect(args["body"]).toBe(
             "Released: https://github.com/owner/repo/releases/tag/v1.0.0"
           );
         }),
-        update: jest.fn((args) => {
+        update: jest.fn((args: any) => {
           expect(args["title"]).toBe("Release: v1.0.0 is released!");
         }),
       },
@@ -348,14 +349,14 @@ describe("closeReleasedIssueIfNeeded", () => {
         octokit
       )
     ).resolves.toBe(false);
-    expect(mock).not.toBeCalled();
+    expect(mock).not.toHaveBeenCalled();
   });
 
   test("release title is empty", async () => {
     octokit.rest = {
       issues: {
         createComment: jest.fn(),
-        update: jest.fn((args) => {
+        update: jest.fn((args: any) => {
           expect(args["title"]).toBe(undefined);
         }),
       },
