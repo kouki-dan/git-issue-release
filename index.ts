@@ -1,5 +1,5 @@
 import * as core from "@actions/core";
-import { gitIssueRelease } from "./git-issue-release.js";
+import { gitIssueRelease } from "./git-issue-release";
 
 async function run() {
   try {

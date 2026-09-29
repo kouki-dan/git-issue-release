@@ -1,6 +1,6 @@
 import * as core from "@actions/core";
 import * as github from "@actions/github";
-import * as lib from "./lib.js";
+import * as lib from "./lib";
 import { GitHub } from "@actions/github/lib/utils";
 
 async function getDescription(
