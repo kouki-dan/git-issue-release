@@ -118,3 +118,6 @@ out
 .pnp.*
 
 
+
+# TypeScript build output (bundled into dist by ncc)
+build/
