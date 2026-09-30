@@ -37285,7 +37285,7 @@ function getOctokit(token, options, ...additionalPlugins) {
     return new GitHubWithPlugins(getOctokitOptions(token, options));
 }
 //# sourceMappingURL=github.js.map
-;// CONCATENATED MODULE: ./lib.ts
+;// CONCATENATED MODULE: ./build/lib.js
 async function findLatestRelease(owner, repo, tag_pattern, octokit, option) {
     let skip = option?.skip ?? 0;
     for await (const response of octokit.paginate.iterator("GET /repos/{owner}/{repo}/releases", {
@@ -37419,7 +37419,7 @@ function parseReleaseLabel(release_label) {
     return release_label.split(",").map((l) => l.trim());
 }
 
-;// CONCATENATED MODULE: ./git-issue-release.ts
+;// CONCATENATED MODULE: ./build/git-issue-release.js
 
 
 
@@ -37488,7 +37488,7 @@ async function gitIssueRelease() {
     }
 }
 
-;// CONCATENATED MODULE: ./index.ts
+;// CONCATENATED MODULE: ./build/index.js
 
 
 async function run() {

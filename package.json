@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "ncc build index.ts --license licenses.txt",
-    "test": "NODE_OPTIONS=--experimental-vm-modules jest"
+    "build": "tsc -p tsconfig.build.json && ncc build build/index.js --license licenses.txt",
+    "typecheck": "tsc --noEmit",
+    "test": "tsc --noEmit && NODE_OPTIONS=--experimental-vm-modules jest"
   },
   "repository": {
     "type": "git",
@@ -24,10 +25,11 @@
   },
   "devDependencies": {
     "@jest/globals": "30.5.2",
+    "@swc/core": "1.16.13",
+    "@swc/jest": "0.2.39",
     "@types/jest": "30.0.0",
     "@vercel/ncc": "0.45.0",
     "jest": "30.5.2",
-    "ts-jest": "29.4.14",
     "typescript": "7.0.2"
   },
   "type": "module"

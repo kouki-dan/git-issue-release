@@ -5,6 +5,7 @@
     "moduleResolution": "Bundler",
     "esModuleInterop": true,
     "isolatedModules": true,
-    "strict": true
+    "strict": true,
+    "types": ["jest"]
   }
 }

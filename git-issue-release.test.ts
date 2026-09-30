@@ -23,7 +23,7 @@ jest.unstable_mockModule("@actions/core", () => ({
   getInput,
 }));
 
-const actualLib = await import("./lib");
+const actualLib = await import("./lib.js");
 const lib = {
   parseReleaseLabel: jest.fn(actualLib.parseReleaseLabel),
   findLatestRelease: jest.fn(actualLib.findLatestRelease),
@@ -34,9 +34,9 @@ const lib = {
   closeReleasedIssueIfNeeded: jest.fn(actualLib.closeReleasedIssueIfNeeded),
   fetchFileContent: jest.fn(actualLib.fetchFileContent),
 };
-jest.unstable_mockModule("./lib", () => lib);
+jest.unstable_mockModule("./lib.js", () => lib);
 
-const { gitIssueRelease } = await import("./git-issue-release");
+const { gitIssueRelease } = await import("./git-issue-release.js");
 
 beforeEach(() => {
   for (const key of Object.keys(context)) {
