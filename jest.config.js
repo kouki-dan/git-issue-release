@@ -3,8 +3,14 @@ export default {
   moduleFileExtensions: ['js', 'ts'],
   testMatch: ['**/*.test.ts'],
   extensionsToTreatAsEsm: ['.ts'],
+  moduleNameMapper: {
+    '^(\\.{1,2}/.*)\\.js$': '$1'
+  },
   transform: {
-    '^.+\\.ts$': ['ts-jest', { useESM: true }]
+    '^.+\\.ts$': ['@swc/jest', {
+      jsc: { parser: { syntax: 'typescript' }, target: 'es2022' },
+      module: { type: 'es6' }
+    }]
   },
   verbose: true
 }
